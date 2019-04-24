@@ -24,6 +24,7 @@ namespace AK_1D
             DrawArea = new Bitmap(pictureBox1.Size.Width, pictureBox1.Size.Height);
             pictureBox1.Image = DrawArea;
 
+            //Inserting rules
             comboBox1.Items.Insert(0, 30);
             comboBox1.Items.Insert(1, 60);
             comboBox1.Items.Insert(2, 90);
@@ -68,7 +69,6 @@ namespace AK_1D
             //  Start point
             tab[width / 2,0] = 1;
 
-            //  
             for (int j=0; j<time-1; j++)
             {
                 for (int i=0;i<width; i++)
@@ -118,12 +118,12 @@ namespace AK_1D
                             c = tab[i + 1, j];
                         }
                     }
-                    //if (check30(a,b,c) == 1) tab[i, j + 1] = 1;
+                    // Checking rule and marking accordingly to it
                     if (checkRule(a, b, c, ruleValues) == 1) tab[i, j + 1] = 1;
                 }
             }
 
-            //  Visualising
+            //  Visualising changes
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < time - 1; j++)
