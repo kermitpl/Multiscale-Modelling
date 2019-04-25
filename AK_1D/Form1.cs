@@ -128,7 +128,7 @@ namespace AK_1D
             {
                 for (int j = 0; j < time - 1; j++)
                 {
-                    if (tab[i, j] == 1) g.FillRectangle(aBrush, i, j, 1, 1);
+                    if (tab[i, j] == 1) g.FillRectangle(aBrush, i*10, j*10, 10, 10);
                 }
             }
             
@@ -175,6 +175,11 @@ namespace AK_1D
             for (int i = 0; i < 8; i++)
                 tab1[i] = Convert.ToInt32(binary[i])-48;
             return tab1;
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
