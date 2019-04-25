@@ -142,19 +142,6 @@ namespace AK_1D
 
         }
 
-        private int check30(int a, int b, int c)
-        {
-            if (a == 1 & b == 1 & c == 1) return 0;
-            if (a == 1 & b == 1 & c == 0) return 0;
-            if (a == 1 & b == 0 & c == 1) return 0;
-            if (a == 1 & b == 0 & c == 0) return 1;
-            if (a == 0 & b == 1 & c == 1) return 1;
-            if (a == 0 & b == 1 & c == 0) return 1;
-            if (a == 0 & b == 0 & c == 1) return 1;
-            if (a == 0 & b == 0 & c == 0) return 0;
-            return 0;
-        }
-
         private int checkRule(int a, int b, int c, int [] values)
         {
             if (a == 1 & b == 1 & c == 1) return values[0];
