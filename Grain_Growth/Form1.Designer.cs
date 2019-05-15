@@ -86,7 +86,7 @@
             this.numericUpDown1.Size = new System.Drawing.Size(120, 31);
             this.numericUpDown1.TabIndex = 2;
             this.numericUpDown1.Value = new decimal(new int[] {
-            10,
+            100,
             0,
             0,
             0});
@@ -108,7 +108,7 @@
             this.numericUpDown2.Size = new System.Drawing.Size(120, 31);
             this.numericUpDown2.TabIndex = 3;
             this.numericUpDown2.Value = new decimal(new int[] {
-            10,
+            100,
             0,
             0,
             0});
@@ -208,7 +208,7 @@
             this.numericUpDown3.Size = new System.Drawing.Size(120, 31);
             this.numericUpDown3.TabIndex = 13;
             this.numericUpDown3.Value = new decimal(new int[] {
-            1,
+            5,
             0,
             0,
             0});
@@ -225,7 +225,7 @@
             this.numericUpDown4.Size = new System.Drawing.Size(120, 31);
             this.numericUpDown4.TabIndex = 14;
             this.numericUpDown4.Value = new decimal(new int[] {
-            1,
+            5,
             0,
             0,
             0});
@@ -264,6 +264,7 @@
             this.Controls.Add(this.label1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

@@ -42,6 +42,11 @@ namespace Grain_Growth
             buttonContinue = !buttonContinue;
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
         int[,,] tab;
 
         public Form1()
