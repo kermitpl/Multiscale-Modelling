@@ -19,10 +19,17 @@ namespace Grain_Growth
 
         int width, height, nucleation, grainPictureSize, neighbourhood;
         int grainQuantity, grainQuantityWidth, grainQuantityHeight, grainRadius;
+        int neighbourhoodRadius;
         int time = 2;
         Color [] grainColors;
         bool working, buttonContinue = false;
         int clickedCounter;
+
+        int[,,] tab;
+        int[,] pentTab;
+        int[,] heksTab;
+        double[,] tabX;
+        double[,] tabY;
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
@@ -30,7 +37,7 @@ namespace Grain_Growth
             Point coordinates = me.Location;
             int x = coordinates.X / grainPictureSize;
             int y = coordinates.Y / grainPictureSize;
-            if (working==false)
+            if (working == false)
             {
                 tab[x, y, 1] = clickedCounter+1;
                 clickedCounter++;
@@ -47,8 +54,6 @@ namespace Grain_Growth
 
         }
 
-        int[,,] tab;
-
         public Form1()
         {
             this.WindowState = FormWindowState.Maximized;
@@ -61,10 +66,16 @@ namespace Grain_Growth
             comboBox1.Items.Insert(1, "Z promieniem");
             comboBox1.Items.Insert(2, "Losowe");
             comboBox1.Items.Insert(3, "Wybrane");
-            comboBox1.SelectedIndex = 0;
+            comboBox1.SelectedIndex = 2;
 
             comboBox2.Items.Insert(0, "VonNeumann");
-            comboBox2.SelectedIndex = 0;
+            comboBox2.Items.Insert(1, "Moore");
+            comboBox2.Items.Insert(2, "Pentagonalne losowe");
+            comboBox2.Items.Insert(3, "Heksagonalne lewe");
+            comboBox2.Items.Insert(4, "Heksagonalne prawe");
+            comboBox2.Items.Insert(5, "Heksagonalne losowe");
+            comboBox2.Items.Insert(6, "Z promieniem");
+            comboBox2.SelectedIndex = 6;
             MaximizeBox = true;
         }
 
@@ -79,6 +90,7 @@ namespace Grain_Growth
             height = Convert.ToInt32(numericUpDown2.Value);
             nucleation = Convert.ToInt32(comboBox1.SelectedIndex);
             neighbourhood = Convert.ToInt32(comboBox2.SelectedIndex);
+            neighbourhoodRadius = Convert.ToInt32(numericUpDown5.Value);
             grainPictureSize = pictureBox1.Width / width;
 
             tab = new int[width, height, time];
@@ -89,7 +101,7 @@ namespace Grain_Growth
 
             Random rnd = new Random();
 
-            if (nucleation==0)
+            if (nucleation == 0)
             {
                 grainQuantityWidth = Convert.ToInt32(numericUpDown3.Value);
                 grainQuantityHeight = Convert.ToInt32(numericUpDown4.Value);
@@ -99,12 +111,12 @@ namespace Grain_Growth
                 {
                     for (int j=0; j<grainQuantityWidth; j++)
                     {
-                        tab[(height/grainQuantityHeight/2)+i * (height / grainQuantityHeight), (width/grainQuantityWidth/2)+j * (width / grainQuantityWidth), 1] = counter;
+                        tab[(width / grainQuantityWidth / 2) + j * (width / grainQuantityWidth), (height / grainQuantityHeight / 2) + i * (height / grainQuantityHeight), 1] = counter;
                         counter++;
                     }
                 }
             }
-            else if (nucleation==1)
+            else if (nucleation == 1)
             {
                 grainQuantity = Convert.ToInt32(numericUpDown3.Value);
                 grainRadius= Convert.ToInt32(numericUpDown4.Value);
@@ -120,7 +132,7 @@ namespace Grain_Growth
                     {
                         if (rndQuantity>100)
                         {
-                            MessageBox.Show("Too much points ot too wide radius", "Impossibility", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Too much points ot too wide radius. \n Grains:"+g, "Impossibility", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             impossibility = true;
                             break;
                         }
@@ -147,7 +159,7 @@ namespace Grain_Growth
                     }
                 }
             }
-            else if (nucleation==2)
+            else if (nucleation == 2)
             {
                 
                 grainQuantity= Convert.ToInt32(numericUpDown3.Value);
@@ -161,6 +173,7 @@ namespace Grain_Growth
                 clickedCounter = 0;
                 while (buttonContinue == false)
                 {
+                    button1.Enabled = false;
                     System.Threading.Thread.Sleep(20);
                     System.Windows.Forms.Application.DoEvents();
 
@@ -187,9 +200,38 @@ namespace Grain_Growth
                 }
                 grainQuantity = clickedCounter;
                 buttonContinue = false;
+                button1.Enabled = true;
             }
 
             fillColourTable();
+
+            if (neighbourhood == 2)
+            {
+                pentTab = new int[width, height];
+                for (int i = 0; i < width; i++)
+                    for (int j = 0; j < height; j++)
+                        pentTab[i, j] = rnd.Next(4);
+            }
+            else if (neighbourhood == 5)
+            {
+                heksTab = new int[width, height];
+                for (int i = 0; i < width; i++)
+                    for (int j = 0; j < height; j++)
+                        heksTab[i, j] = rnd.Next(2);
+            }
+            else if (neighbourhood == 6)
+            {
+                tabX = new double[width, height];
+                tabY = new double[width, height];
+                for (int i = 0; i < width; i++)
+                    for (int j = 0; j < height; j++)
+                    {
+                        tabX[i,j] = i*1.0+(rnd.NextDouble()-0.5);
+                        tabY[i,j] = j*1.0+(rnd.NextDouble()-0.5);
+                    }
+                       
+            }
+
             working = true;
             growth();
             working = false;
@@ -283,6 +325,384 @@ namespace Grain_Growth
                 return toReturn;
 
             }
+            else if (neighbourhood == 1)
+            {
+                if (i != width - 1) nextColumn = i + 1;
+                else nextColumn = 0;
+
+                if (i != 0) prevColumn = i - 1;
+                else prevColumn = width - 1;
+
+                if (j != height - 1) upperRow = j + 1;
+                else upperRow = 0;
+
+                if (j != 0) lowerRow = j - 1;
+                else lowerRow = height - 1;
+
+                toReturn = new int[8];
+                toReturn[0] = tab[nextColumn, j, 0];
+                toReturn[1] = tab[prevColumn, j, 0];
+                toReturn[2] = tab[i, upperRow, 0];
+                toReturn[3] = tab[i, lowerRow, 0];
+                toReturn[4] = tab[nextColumn, upperRow, 0];
+                toReturn[5] = tab[prevColumn, lowerRow, 0];
+                toReturn[6] = tab[prevColumn, upperRow, 0];
+                toReturn[7] = tab[nextColumn, lowerRow, 0];
+                if (checkBox1.Checked == false)
+                {
+                    if (i == width - 1)
+                    {
+                        toReturn[0] = 0;
+                        toReturn[4] = 0;
+                        toReturn[7] = 0;
+                    }
+                    if (i == 0)
+                    {
+                        toReturn[1] = 0;
+                        toReturn[5] = 0;
+                        toReturn[6] = 0;
+                    }
+                    if (j == height - 1)
+                    {
+                        toReturn[2] = 0;
+                        toReturn[4] = 0;
+                        toReturn[6] = 0;
+                    }
+                    if (j == 0)
+                    {
+                        toReturn[3] = 0;
+                        toReturn[5] = 0;
+                        toReturn[7] = 0;
+                    }
+                }
+                return toReturn;
+            }
+            else if (neighbourhood == 2)
+            {
+                if (i != width - 1) nextColumn = i + 1;
+                else nextColumn = 0;
+
+                if (i != 0) prevColumn = i - 1;
+                else prevColumn = width - 1;
+
+                if (j != height - 1) upperRow = j + 1;
+                else upperRow = 0;
+
+                if (j != 0) lowerRow = j - 1;
+                else lowerRow = height - 1;
+
+                toReturn = new int[5];
+                if (pentTab[i, j] == 0)
+                {
+                    //  pentagonalne lewe
+                    toReturn[0] = tab[prevColumn, lowerRow, 0];
+                    toReturn[1] = tab[prevColumn, j, 0];
+                    toReturn[2] = tab[prevColumn, upperRow, 0];
+                    toReturn[3] = tab[i, lowerRow, 0];
+                    toReturn[4] = tab[i, upperRow, 0];
+                    if (checkBox1.Checked == false)
+                    {
+                        if (i == 0)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[1] = 0;
+                            toReturn[2] = 0;
+                        }
+                        if (j == height - 1)
+                        {
+                            toReturn[2] = 0;
+                            toReturn[4] = 0;
+                        }
+                        if (j == 0)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[3] = 0;
+                        }
+                    }
+                }
+                else if (pentTab[i,j] == 1)
+                {
+                    // pentagonalne prawe
+                    toReturn[0] = tab[nextColumn, lowerRow, 0];
+                    toReturn[1] = tab[nextColumn, j, 0];
+                    toReturn[2] = tab[nextColumn, upperRow, 0];
+                    toReturn[3] = tab[i, lowerRow, 0];
+                    toReturn[4] = tab[i, upperRow, 0];
+                    if (checkBox1.Checked == false)
+                    {
+                        if (i == width - 1)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[1] = 0;
+                            toReturn[2] = 0;
+                        }
+                        if (j == height - 1)
+                        {
+                            toReturn[2] = 0;
+                            toReturn[4] = 0;
+                        }
+                        if (j == 0)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[3] = 0;
+                        }
+                    }
+                }
+                else if (pentTab[i, j] == 2)
+                {
+                    //  pentagonalne dolne
+                    toReturn[0] = tab[prevColumn, lowerRow, 0];
+                    toReturn[1] = tab[i, lowerRow, 0];
+                    toReturn[2] = tab[nextColumn, lowerRow, 0];
+                    toReturn[3] = tab[prevColumn, j, 0];
+                    toReturn[4] = tab[nextColumn, j, 0];
+                    if (checkBox1.Checked == false)
+                    {
+                        if (i == width - 1)
+                        {
+                            toReturn[2] = 0;
+                            toReturn[4] = 0;
+                        }
+                        if (i == 0)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[3] = 0;
+                        }
+                        if (j == 0)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[1] = 0;
+                            toReturn[2] = 0;
+                        }
+                    }
+                }
+                else if (pentTab[i, j] == 3)
+                {
+                    //  pentagonalne gorne
+                    toReturn[0] = tab[prevColumn, upperRow, 0];
+                    toReturn[1] = tab[i, upperRow, 0];
+                    toReturn[2] = tab[nextColumn, upperRow, 0];
+                    toReturn[3] = tab[prevColumn, j, 0];
+                    toReturn[4] = tab[nextColumn, j, 0];
+                    if (checkBox1.Checked == false)
+                    {
+                        if (i == width - 1)
+                        {
+                            toReturn[2] = 0;
+                            toReturn[4] = 0;
+                        }
+                        if (i == 0)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[3] = 0;
+                        }
+                        if (j == height - 1)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[1] = 0;
+                            toReturn[2] = 0;
+                        }
+                    }
+                }
+
+                return toReturn;
+            }
+            else if (neighbourhood == 3)
+            {
+                if (i != width - 1) nextColumn = i + 1;
+                else nextColumn = 0;
+
+                if (i != 0) prevColumn = i - 1;
+                else prevColumn = width - 1;
+
+                if (j != height - 1) upperRow = j + 1;
+                else upperRow = 0;
+
+                if (j != 0) lowerRow = j - 1;
+                else lowerRow = height - 1;
+
+                toReturn = new int[6];
+                toReturn[0] = tab[nextColumn, j, 0];
+                toReturn[1] = tab[prevColumn, j, 0];
+                toReturn[2] = tab[i, upperRow, 0];
+                toReturn[3] = tab[i, lowerRow, 0];
+                toReturn[4] = tab[nextColumn, upperRow, 0];
+                toReturn[5] = tab[prevColumn, lowerRow, 0];
+                if (checkBox1.Checked == false)
+                {
+                    if (i == width - 1)
+                    {
+                        toReturn[0] = 0;
+                        toReturn[4] = 0;
+                    }
+                    if (i == 0)
+                    {
+                        toReturn[1] = 0;
+                        toReturn[5] = 0;
+                    }
+                    if (j == height - 1)
+                    {
+                        toReturn[2] = 0;
+                        toReturn[4] = 0;
+                    }
+                    if (j == 0)
+                    {
+                        toReturn[3] = 0;
+                        toReturn[5] = 0;
+                    }
+                }
+                return toReturn;
+            }
+            else if (neighbourhood == 4)
+            {
+                if (i != width - 1) nextColumn = i + 1;
+                else nextColumn = 0;
+
+                if (i != 0) prevColumn = i - 1;
+                else prevColumn = width - 1;
+
+                if (j != height - 1) upperRow = j + 1;
+                else upperRow = 0;
+
+                if (j != 0) lowerRow = j - 1;
+                else lowerRow = height - 1;
+
+                toReturn = new int[6];
+                toReturn[0] = tab[nextColumn, j, 0];
+                toReturn[1] = tab[prevColumn, j, 0];
+                toReturn[2] = tab[i, upperRow, 0];
+                toReturn[3] = tab[i, lowerRow, 0];
+                toReturn[4] = tab[prevColumn, upperRow, 0];
+                toReturn[5] = tab[nextColumn, lowerRow, 0];
+                if (checkBox1.Checked == false)
+                {
+                    if (i == width - 1)
+                    {
+                        toReturn[0] = 0;
+                        toReturn[5] = 0;
+                    }
+                    if (i == 0)
+                    {
+                        toReturn[1] = 0;
+                        toReturn[4] = 0;
+                    }
+                    if (j == height - 1)
+                    {
+                        toReturn[2] = 0;
+                        toReturn[4] = 0;
+                    }
+                    if (j == 0)
+                    {
+                        toReturn[3] = 0;
+                        toReturn[5] = 0;
+                    }
+                }
+                return toReturn;
+            }
+            else if (neighbourhood == 5)
+            {
+                if (i != width - 1) nextColumn = i + 1;
+                else nextColumn = 0;
+
+                if (i != 0) prevColumn = i - 1;
+                else prevColumn = width - 1;
+
+                if (j != height - 1) upperRow = j + 1;
+                else upperRow = 0;
+
+                if (j != 0) lowerRow = j - 1;
+                else lowerRow = height - 1;
+
+                toReturn = new int[6];
+
+                if (heksTab[i,j] == 0)
+                {
+                    toReturn[0] = tab[nextColumn, j, 0];
+                    toReturn[1] = tab[prevColumn, j, 0];
+                    toReturn[2] = tab[i, upperRow, 0];
+                    toReturn[3] = tab[i, lowerRow, 0];
+                    toReturn[4] = tab[nextColumn, upperRow, 0];
+                    toReturn[5] = tab[prevColumn, lowerRow, 0];
+                    if (checkBox1.Checked == false)
+                    {
+                        if (i == width - 1)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[4] = 0;
+                        }
+                        if (i == 0)
+                        {
+                            toReturn[1] = 0;
+                            toReturn[5] = 0;
+                        }
+                        if (j == height - 1)
+                        {
+                            toReturn[2] = 0;
+                            toReturn[4] = 0;
+                        }
+                        if (j == 0)
+                        {
+                            toReturn[3] = 0;
+                            toReturn[5] = 0;
+                        }
+                    }
+                }
+                else
+                {
+                    toReturn[0] = tab[nextColumn, j, 0];
+                    toReturn[1] = tab[prevColumn, j, 0];
+                    toReturn[2] = tab[i, upperRow, 0];
+                    toReturn[3] = tab[i, lowerRow, 0];
+                    toReturn[4] = tab[prevColumn, upperRow, 0];
+                    toReturn[5] = tab[nextColumn, lowerRow, 0];
+                    if (checkBox1.Checked == false)
+                    {
+                        if (i == width - 1)
+                        {
+                            toReturn[0] = 0;
+                            toReturn[5] = 0;
+                        }
+                        if (i == 0)
+                        {
+                            toReturn[1] = 0;
+                            toReturn[4] = 0;
+                        }
+                        if (j == height - 1)
+                        {
+                            toReturn[2] = 0;
+                            toReturn[4] = 0;
+                        }
+                        if (j == 0)
+                        {
+                            toReturn[3] = 0;
+                            toReturn[5] = 0;
+                        }
+                    }
+                }
+
+                return toReturn;
+
+            }
+            else if (neighbourhood == 6)
+            {
+                List<int> elementList = new List<int>();
+                for (int ii = 0; ii < width; ii++)
+                    for (int jj = 0; jj < height; jj++)
+                    {
+                        double dist = CalculateManhattanDistance(tabX[i, j], tabX[ii, jj], tabY[i, j], tabY[ii, jj]);
+                        if (dist < neighbourhoodRadius)
+                        {
+                            elementList.Add(tab[ii, jj, 0]);
+                        }
+                    }
+                toReturn = new int[elementList.Count];
+                for (int z=0; z<elementList.Count; z++)
+                {
+                    toReturn[z] = elementList[z];
+                }
+                return toReturn;
+                        
+            }
             toReturn = new int[1];
             toReturn[0] = 0;
             return toReturn;
@@ -290,17 +710,34 @@ namespace Grain_Growth
 
         private int grainValue(int [] neighbours)
         {
-            for (int i=0; i<neighbours.Length; i++)
+            int winNumber = 0, winID=0;
+            int[] values = new int[neighbours.Length];
+            for (int i = 0; i < values.Length; i++)
             {
-                if (neighbours[i]!=0)
-                {
-                    return neighbours[i];
+                values[i] = 0;
+                if (neighbours[i] != 0)
+                { 
+                    for (int j = 0; j < neighbours.Length; j++)
+                    {
+                        if (neighbours[i] == neighbours[j]) values[i]++;
+                    }
+                    if (values[i] > winNumber)
+                    {
+                        winNumber = values[i];
+                        winID = neighbours[i];
+                    }
                 }
             }
-            return 0;
+
+            return winID;
         }
 
         public int CalculateManhattanDistance(int x1, int x2, int y1, int y2)
+        {
+            return Math.Abs(x1 - x2) + Math.Abs(y1 - y2);
+        }
+
+        public double CalculateManhattanDistance(double x1, double x2, double y1, double y2)
         {
             return Math.Abs(x1 - x2) + Math.Abs(y1 - y2);
         }
