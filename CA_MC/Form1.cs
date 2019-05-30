@@ -145,6 +145,8 @@ namespace CA_MC
                 for (int j = 0; j < height; j++)
                 {
                     int energy = calculateEnergy(MCtab[i, j,0], getNeighbours(MCtab, i, j, neighbourhood));
+                    if (energy < 0) energy = 0;
+                    else if (energy > grainQuantity - 1) energy = grainQuantity - 1;
                     g.FillRectangle(new SolidBrush(grainColors[energy]), i * grainPictureSize, j * grainPictureSize, grainPictureSize, grainPictureSize);
                 }
 
@@ -343,7 +345,9 @@ namespace CA_MC
             }
 
             working = true;
+            button3.Enabled = false;
             growth();
+            button3.Enabled = true;
             working = false;
         }
 
