@@ -40,7 +40,7 @@ namespace CA_DRX
         double A = 86710969050178.5;
         double B = 9.41268203527779;
         double DRXtime = 0.2;
-        double xPercentage = 0.999;
+        double xPercentage = 0.99;
         double criticalDensity = 4215840142323.42;
         double criticalDensityCell;
         int idDRX;
@@ -85,11 +85,15 @@ namespace CA_DRX
                     }
 
             DRX();
-            int xyz=0;
         }
 
         private void DRX()
         {
+            Double.TryParse(textBox1.Text, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out DRXtime);
+            //Double.TryParse(textBox2.Text, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out A);
+            //Double.TryParse(textBox3.Text, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out B);
+            Double.TryParse(textBox4.Text, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out criticalDensity);
+
             g = Graphics.FromImage(DrawArea);
 
             Random rnd = new Random();
@@ -98,16 +102,24 @@ namespace CA_DRX
             criticalDensityCell = criticalDensity / quantityOfGrains;
             idDRX = quantityOfGrains + 1;
 
-
+            //  Calculating summaryDensity and writing to file
+            string createText="";
+            string path = "result.csv";
             for (double t=0.0; t<=DRXtime; t+=0.001)
             {
                 steps++;
-                summaryDensity.Add(calculateDensity(t));
+                double d = calculateDensity(t);
+                summaryDensity.Add(d);
+                createText += t + ";" + d + Environment.NewLine;
             }
+            System.IO.File.WriteAllText(path, createText);
+
 
             //  Every step of DRX
             for (int t = 1; t<steps; t++)
             {
+                double text1 = t * 0.001;
+                label8.Text = text1.ToString();
                 //  Saving results from last step
                 for (int i = 0; i < width; i++)
                     for (int j = 0; j < height; j++)
@@ -160,7 +172,7 @@ namespace CA_DRX
                     for (int j = 0; j < height; j++)
                     {
                         //density[i, j, 1];
-                        if (isOnEdge(i,j) & density[i,j,0]>criticalDensityCell & isRecrystallized[i,j,0]==false)
+                        if (isOnEdge(i,j) && density[i,j,0]>criticalDensityCell && isRecrystallized[i,j,0]==false)
                         {
                             //  new grain
                             idDRX = idDRX + 1;
@@ -169,7 +181,7 @@ namespace CA_DRX
                             isRecrystallized[i, j, 1] = true;
                             DRXColors.Add(newRndColor());  
                         }
-                        else if (shouldRecr(i, j))
+                        else if (shouldRecr(i, j) && isRecrystallized[i, j, 0] == false)
                         {
                             //  recrystallizing
                             DRXTab[i, j, 1] = recrValue(i, j);
@@ -183,10 +195,24 @@ namespace CA_DRX
                 for (int i = 0; i < width; i++)
                     for (int j = 0; j < height; j++)
                     {
-                        if (isRecrystallized[i, j, 0])
+                        if (checkBox2.Checked == false)
                         {
-                            int index = DRXTab[i, j, 0] - quantityOfGrains-2;
-                            g.FillRectangle(new SolidBrush(DRXColors[index]), i * grainPictureSize, j * grainPictureSize, grainPictureSize, grainPictureSize);
+                            if (isRecrystallized[i, j, 0])
+                            {
+                                int index = DRXTab[i, j, 0] - quantityOfGrains - 2;
+                                g.FillRectangle(new SolidBrush(DRXColors[index]), i * grainPictureSize, j * grainPictureSize, grainPictureSize, grainPictureSize);
+                            }
+                        }
+                        else
+                        {
+                            if (density[i, j, 0] < criticalDensityCell)
+                            {
+                                g.FillRectangle(new SolidBrush(Color.White), i * grainPictureSize, j * grainPictureSize, grainPictureSize, grainPictureSize);
+                            }
+                            else
+                            {
+                                g.FillRectangle(new SolidBrush(Color.Black), i * grainPictureSize, j * grainPictureSize, grainPictureSize, grainPictureSize);
+                            }
                         }
                     }
 
